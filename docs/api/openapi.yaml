@@ -1,0 +1,290 @@
+openapi: 3.0.3
+info:
+  title: ThrottleHub API
+  description: ThrottleHub backend API contract
+  version: 0.1.0
+components:
+  schemas: {}
+paths:
+  /health:
+    get:
+      tags:
+        - System
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - status
+                  - timestamp
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: string
+                    enum:
+                      - up
+                  timestamp:
+                    format: date-time
+                    type: string
+  /auth/request-otp:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  format: email
+                  type: string
+                fullName:
+                  minLength: 2
+                  maxLength: 100
+                  type: string
+                username:
+                  minLength: 3
+                  maxLength: 30
+                  type: string
+      responses:
+        '202':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                  - expiresInMinutes
+                properties:
+                  message:
+                    type: string
+                  expiresInMinutes:
+                    type: integer
+  /auth/verify-otp:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+              properties:
+                email:
+                  format: email
+                  type: string
+                otp:
+                  minLength: 6
+                  maxLength: 6
+                  type: string
+                fullName:
+                  minLength: 2
+                  maxLength: 100
+                  type: string
+                username:
+                  minLength: 3
+                  maxLength: 30
+                  type: string
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - accessToken
+                  - refreshToken
+                  - user
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  user:
+                    type: object
+                    required:
+                      - id
+                      - username
+                      - email
+                      - fullName
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      email:
+                        format: email
+                        type: string
+                      fullName:
+                        type: string
+        '401':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  minLength: 10
+                  type: string
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - accessToken
+                  - refreshToken
+                  - user
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  user:
+                    type: object
+                    required:
+                      - id
+                      - username
+                      - email
+                      - fullName
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      email:
+                        format: email
+                        type: string
+                      fullName:
+                        type: string
+        '401':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  minLength: 10
+                  type: string
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+  /users/me:
+    get:
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - username
+                  - email
+                  - fullName
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  email:
+                    format: email
+                    type: string
+                  fullName:
+                    type: string
+                  bio:
+                    type: string
+        '404':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+servers:
+  - url: /api/v1
+tags:
+  - name: System
+    description: Health and system endpoints
+  - name: Auth
+    description: Authentication and session endpoints
